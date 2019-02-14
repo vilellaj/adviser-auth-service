@@ -81,13 +81,13 @@ workflows:
     jobs:
       - build-image:
           requires:
-            - build-test
+            - build
           filters:
             branches:
               only: master
       - publish-latest:
           requires:
-            - build
+            - build-image
           filters:
             branches:
               only: master
