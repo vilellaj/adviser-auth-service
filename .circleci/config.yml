@@ -81,7 +81,7 @@ workflows:
     jobs:
       - build-image:
           requires:
-            - test
+            - build-test
           filters:
             branches:
               only: master
