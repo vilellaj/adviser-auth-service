@@ -74,12 +74,21 @@ jobs:
             docker push $IMAGE_NAME:$IMAGE_TAG
 workflows:
   version: 2
+  # Simple test
   build-test:
     jobs:
       - build
+
+  # Any commit to master will be tested and will have the "latest" image
   build-master:
     jobs:
+      - build:
+          filters:
+            branches:
+              only: master
       - build-image:
+          requires:
+            - build
           filters:
             branches:
               only: master
@@ -89,9 +98,19 @@ workflows:
           filters:
             branches:
               only: master
+
+  # Tags will create images too
   build-tags:
     jobs:
+      - build:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - build-image:
+          requires:
+            - build
           filters:
             tags:
               only: /^v.*/
