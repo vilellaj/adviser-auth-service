@@ -6,6 +6,29 @@ executors:
     docker:
       - image: circleci/buildpack-deps:stretch
 jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+
+      - run: npm install
+      - run:
+          name: Run tests
+          command: npm test
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
   build:
     executor: docker-publisher
     steps:
@@ -35,7 +58,7 @@ jobs:
           name: Publish Docker Image to Docker Hub
           command: |
             echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            IMAGE_TAG="0.0.${CIRCLE_BUILD_NUM}"
+            IMAGE_TAG="build-0.0.${CIRCLE_BUILD_NUM}"
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
@@ -58,9 +81,14 @@ jobs:
             docker push $IMAGE_NAME:$IMAGE_TAG
 workflows:
   version: 2
+  only-test:
+    jobs:
+      - test
   build-master:
     jobs:
       - build:
+          requires:
+            - test
           filters:
             branches:
               only: master
