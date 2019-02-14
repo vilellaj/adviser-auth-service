@@ -77,7 +77,10 @@ workflows:
   # Simple test
   build-test:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              ignore: master
 
   # Any commit to master will be tested and will have the "latest" image
   build-master:
