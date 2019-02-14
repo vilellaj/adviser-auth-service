@@ -80,8 +80,6 @@ workflows:
   build-master:
     jobs:
       - build-image:
-          requires:
-            - build
           filters:
             branches:
               only: master
