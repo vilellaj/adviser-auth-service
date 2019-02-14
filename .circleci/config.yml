@@ -1,4 +1,10 @@
 version: 2
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME: vilellaj/adviser-auth-service
+    docker:
+      - image: circleci/buildpack-deps:stretch
 jobs:
   build:
     docker:
